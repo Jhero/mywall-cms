@@ -79,14 +79,6 @@
             isLoading = false;
         }        
     };
-    
-    // const handleEdit = (category) => {
-    //     console.log('Editing category:', category);
-    //     // Navigate to edit form or open modal with category data
-    //     dispatch('editCategory', category);
-    //     // Or use SvelteKit navigation:
-    //     // goto(`/category/edit/${category.id}`);
-    // };
 
     const handleEdit = async (category) => {
         try {

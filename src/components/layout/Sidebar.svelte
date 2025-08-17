@@ -12,7 +12,8 @@
     Settings, 
     ChevronLeft,
     Menu,
-    Archive
+    Archive,
+    Images
   } from 'lucide-svelte';
 
   export let sidebarCollapsed = false;
@@ -28,6 +29,7 @@
   const menuItems = [
     { id: 'dashboard', label: 'Dashboard', icon: Home, path: '/' },
     { id: 'category', label: 'Kategory', icon: Archive, path: '/category' },
+    { id: 'gallery', label: 'Galery', icon: Images, path: '/galery' },
     { id: 'users', label: 'Pengguna', icon: Users, path: '/users' },
     { id: 'analytics', label: 'Analytics', icon: BarChart3, path: '/analytics' },
     { id: 'settings', label: 'Pengaturan', icon: Settings, path: '/settings' },

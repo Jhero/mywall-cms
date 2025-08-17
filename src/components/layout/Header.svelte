@@ -28,10 +28,10 @@
     currentPage = state.currentPage;
     sidebarCollapsed = state.sidebarCollapsed;
   });
-
   const pageTitle = {
     dashboard: 'Dashboard',
     category: 'Kategori',
+    gallery: 'Galery',
     users: 'Manajemen Pengguna',
     analytics: 'Analytics',
     settings: 'Pengaturan'
