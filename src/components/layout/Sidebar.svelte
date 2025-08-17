@@ -49,7 +49,7 @@
         <div class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
           <span class="text-white font-bold text-sm">C</span>
         </div>
-        <span class="text-xl font-bold">CMS Admin</span>
+        <span class="text-xl font-bold">CMS MyWall</span>
       </div>
     {:else}
       <div class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center mx-auto">
@@ -86,20 +86,4 @@
       {/each}
     </ul>
   </nav>
-
-  <!-- User Profile Section -->
-  <div class="absolute bottom-4 left-4 right-4">
-    <div class="flex items-center p-3 bg-gray-700 rounded-lg" class:justify-center={sidebarCollapsed}>
-      <img src="https://via.placeholder.com/32x32/4F46E5/FFFFFF?text=A" 
-           alt="User Avatar" 
-           class="w-8 h-8 rounded-full" />
-      
-      {#if !sidebarCollapsed}
-        <div class="ml-3">
-          <p class="text-sm font-medium text-white">Admin User</p>
-          <p class="text-xs text-gray-400">admin@example.com</p>
-        </div>
-      {/if}
-    </div>
-  </div>
 </aside>

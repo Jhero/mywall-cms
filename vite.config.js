@@ -19,7 +19,10 @@ export default defineConfig(({ mode }) => {
         '/api': {
           target: env.PUBLIC_API_BASE_URL || 'http://localhost:8080',
           changeOrigin: true,
-          rewrite: (path) => path.replace(/^\/api/, '')
+        },
+        '/auth': {
+          target: env.PUBLIC_API_BASE_URL || 'http://localhost:8080',
+          changeOrigin: true,
         }
       }
     }

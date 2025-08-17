@@ -20,7 +20,6 @@ function createAuthStore() {
             const authData = {
                 isAuthenticated: true,
                 user: userData,
-                token: 'demo-token-' + Date.now() // In real app, this comes from API
             };
             
             set(authData);
