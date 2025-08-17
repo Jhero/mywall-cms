@@ -22,8 +22,6 @@
     let category = {
         id: null,
         name: '',
-        description: '',
-        slug: '',
         isActive: true
     };
     let isLoading = false;
@@ -42,22 +40,9 @@
         };
     }
 
-    // Generate slug from name
-    const generateSlug = (name) => {
-        return name
-            .toLowerCase()
-            .replace(/[^a-z0-9\s-]/g, '')
-            .replace(/\s+/g, '-')
-            .replace(/-+/g, '-')
-            .trim();
-    };
-
     // Handle name input change
     const handleNameChange = (event) => {
         category.name = event.target.value;
-        if (category.name) {
-            category.slug = generateSlug(category.name);
-        }
         // Clear name error when user starts typing
         if (errors.name) {
             errors = { ...errors, name: null };
@@ -73,7 +58,7 @@
         } else if (category.name.trim().length < 2) {
             newErrors.name = 'Nama kategori minimal 2 karakter';
         }
-        
+
         errors = newErrors;
         return Object.keys(newErrors).length === 0;
     };
@@ -237,7 +222,7 @@
                             <svg class="w-4 h-4 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
                             </svg>
-                            Update
+                            Simpan
                         {/if}
                     </button>
                 </div>

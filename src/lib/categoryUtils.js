@@ -20,24 +20,40 @@ const createConfig = () => {
 
 // Save category function
 export const saveCategory = async (categoryId, categoryData, fetch) => {
-    const config = createConfig();
-    
-    const response = await fetch(`/api/categories/${categoryId}`, {
-        method: 'PUT',
-        ...config,
-        body: JSON.stringify(categoryData),
-    });
+    try {
+        const config = createConfig();
+        const isUpdate = categoryId && categoryId !== null && categoryId !== undefined && categoryId !== '';
+        const method = isUpdate ? 'PUT' : 'POST';
+        const url = method==="PUT" ? `/api/categories/${categoryId}` : '/api/categories';
+        
+        const response = await fetch(url, {
+            method:method,
+            ...config,
+            body: JSON.stringify(categoryData),
+        });
 
-    if (!response.ok) {
-        const errorData = await response.json();
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw {
+                status: response.status,
+                errors: errorData.errors,
+                message: errorData.message || 'Failed to update category'
+            };
+        }
+
+        return await response.json();        
+    } catch (error) {
+        // Handle network or other errors
+        if (error.status && error.errors) {
+            throw error; // Re-throw API errors
+        }
+        
         throw {
-            status: response.status,
-            errors: errorData.errors,
-            message: errorData.message || 'Failed to update category'
-        };
+            status: 0,
+            errors: {},
+            message: 'Network error occurred. Please try again.'
+        };        
     }
-
-    return await response.json();
 };
 
 // Bisa ditambahkan fungsi lain seperti:

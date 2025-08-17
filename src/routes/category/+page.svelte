@@ -38,7 +38,7 @@
     let itemsPerPage  = 10;
     let totalItems  = 0;
     let currentPage = 1;
-
+    let isAddingCategory = false;
 
     $: totalPages = Math.ceil(totalItems / itemsPerPage);
 
@@ -63,11 +63,21 @@
     };
     
     // Handle add new category
-    const handleAddCategory = () => {
-        // Navigate to add category form or open modal
-        dispatch('addCategory');
-        // Or use SvelteKit navigation:
-        // goto('/category/add');
+    
+    const handleAdd = () => {
+        try {
+            // Optional: Set loading state for add button
+            isLoading = true;
+            
+            // Navigate to add category page
+            goto('/category/add');
+        } catch (error) {
+            console.error('Navigation error:', error);
+            showErrorNotification('Gagal membuka halaman tambah kategori');
+        } finally {
+            // Reset loading state
+            isLoading = false;
+        }        
     };
     
     // const handleEdit = (category) => {
@@ -177,37 +187,6 @@
         // });
     };
 
-    /*
-    async function loadCategories() {
-        isLoading = true;
-        try {
-            const token = user.token;            
-            const defaultHeaders = {
-                'Content-Type': 'application/json',
-            };
-            
-            if (token) {
-                defaultHeaders.Authorization = `Bearer ${token}`;
-            }
-            
-            const config = {
-                headers: {
-                    ...defaultHeaders,
-                },
-            };
-            const response = await fetch('/api/categories', config);
-            if (response.ok) {
-                categories = await response.json();
-            }
-        } catch (error) {
-            console.error('Error loading categories:', error);
-            goto('/login');
-        } finally {
-            isLoading = false;
-        }
-    }
-    */
-
     onMount(() => {
         loadCategories();
     });
@@ -219,7 +198,7 @@
 
 <div class="p-6">
     <div class="flex justify-between items-center mb-6">
-        <button class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium">
+        <button on:click={handleAdd} class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium">
             + Tambah
         </button>
     </div>
@@ -348,12 +327,12 @@
                         <div class="mt-6">
                             <button
                                 class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors"
-                                on:click={handleAddCategory}
+                                on:click={handleAdd}
                             >
                                 <svg class="w-4 h-4 inline-block mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
                                 </svg>
-                                Tambah Kategori
+                                Tambah
                             </button>
                         </div>
                     </div>
