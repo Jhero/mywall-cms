@@ -4,6 +4,7 @@
     import { goto } from '$app/navigation';
     import { authStore } from '../../stores/auth.js';
     import { createEventDispatcher } from 'svelte';
+    import AuthImage from '../../components/AuthImage.svelte';
 
     let user = "";
 
@@ -45,8 +46,10 @@
     let searchQuery = '';
     let selectedCategory = '';
     let categories = [];
+    let imageUrl = '/placeholder.jpg';
 
     $: totalPages = Math.ceil(totalItems / itemsPerPage);
+
     $: filteredImages = images.filter(image => {
         const matchesSearch = !searchQuery || 
             image.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -55,18 +58,42 @@
         return matchesSearch && matchesCategory;
     });
 
+
+    function parseImagePath(path) {
+        console.info("test-a-1",path);
+        if (!path) return '/placeholder.jpg';
+        const result = path.replace(/^uploads\\/, '/').replace(/\\/g, '/');
+        console.info("test-a-2",result);
+        return result;
+    }
+
+    const logout = async () => {
+        // Clear authentication data
+        localStorage.removeItem('auth');
+        localStorage.removeItem('authToken');
+        
+        // Invalidate all data and redirect
+        await goto('/login', { replaceState: true });
+    };    
+
     // Load images function
     const loadImages = async () => {
         isLoading = true;
         try {
             const response = await fetch(`/api/galleries?page=${currentPage}&limit=${itemsPerPage}&search=${searchQuery}&category=${selectedCategory}`, config);
+            if (response.status === 401) {
+                logout();
+                return;
+            }
             const data = await response.json();
             
-            images = data.images || [];
-            totalItems = data.total || images.length;
+            images = data.data.data || [];
+            totalItems = data.data.pagination.total_items;
         } catch (error) {
-            console.error('Failed to load images:', error);
-            showErrorNotification('Gagal memuat galeri');
+            if (error.status === 401 || error.message.includes('401')) {
+                logout();
+                return;
+            }
         } finally {
             isLoading = false;
         }
@@ -262,6 +289,7 @@
         return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
     };
 
+
     onMount(() => {
         loadImages();
         loadCategories();
@@ -352,16 +380,20 @@
                 <button
                     class="p-2 rounded {viewMode === 'grid' ? 'bg-blue-100 text-blue-600' : 'bg-gray-100 text-gray-600'}"
                     on:click={() => viewMode = 'grid'}
+                    aria-label="Switch to grid view"
+                    title="Grid View"
                 >
-                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
                         <path d="M5 3a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2V5a2 2 0 00-2-2H5zM5 11a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2v-2a2 2 0 00-2-2H5zM11 5a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V5zM11 13a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
                     </svg>
                 </button>
                 <button
                     class="p-2 rounded {viewMode === 'list' ? 'bg-blue-100 text-blue-600' : 'bg-gray-100 text-gray-600'}"
                     on:click={() => viewMode = 'list'}
+                    aria-label="Switch to list view"
+                    title="List View"
                 >
-                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
                         <path fill-rule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clip-rule="evenodd" />
                     </svg>
                 </button>
@@ -396,12 +428,24 @@
 
                                     <!-- Image -->
                                     <div class="aspect-w-1 aspect-h-1 w-full">
-                                        <img
-                                            src={image.thumbnail || image.url}
-                                            alt={image.title}
-                                            class="w-full h-48 object-cover cursor-pointer"
+                                        <button
+                                            type="button"
+                                            class="w-full h-48 p-0 border-none bg-transparent cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 rounded"
                                             on:click={() => !isSelectMode && handleView(image)}
-                                        />
+                                            disabled={isSelectMode}
+                                            aria-label="View {image.title}"
+                                        >
+                                            <!-- <img
+                                                src={parseImagePath(image.image_url)}
+                                                alt={image.title}
+                                                class="w-full h-full object-cover"
+                                            /> -->
+                                            <AuthImage 
+                                                src={parseImagePath(image.image_url)} 
+                                                alt="Profile picture" 
+                                                className="profile-image"
+                                            />
+                                        </button>
                                     </div>
 
                                     <!-- Overlay Actions -->
@@ -410,9 +454,10 @@
                                             <button
                                                 on:click={() => handleView(image)}
                                                 class="bg-white bg-opacity-20 hover:bg-opacity-30 text-white p-2 rounded-full transition-all"
+                                                aria-label="Lihat gambar {image.title || 'ini'}"
                                                 title="Lihat"
                                             >
-                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
                                                 </svg>
@@ -420,18 +465,20 @@
                                             <button
                                                 on:click={() => handleEdit(image)}
                                                 class="bg-white bg-opacity-20 hover:bg-opacity-30 text-white p-2 rounded-full transition-all"
+                                                aria-label="Edit gambar {image.title || 'ini'}"
                                                 title="Edit"
                                             >
-                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
                                                 </svg>
                                             </button>
                                             <button
                                                 on:click={() => handleDelete(image)}
                                                 class="bg-white bg-opacity-20 hover:bg-opacity-30 text-white p-2 rounded-full transition-all"
+                                                aria-label="Hapus gambar {image.title || 'ini'}"
                                                 title="Hapus"
                                             >
-                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
                                                 </svg>
                                             </button>
@@ -469,13 +516,25 @@
                                         />
                                     {/if}
                                     
-                                    <img
-                                        src={image.thumbnail || image.url}
-                                        alt={image.title}
-                                        class="w-16 h-16 object-cover rounded cursor-pointer"
+                                    <button
+                                        type="button"
+                                        class="w-16 h-16 p-0 border-none bg-transparent cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 rounded"
                                         on:click={() => !isSelectMode && handleView(image)}
-                                    />
-                                    
+                                        disabled={isSelectMode}
+                                        aria-label="View {image.title}"
+                                    >
+                                        <!-- <img
+                                            src={parseImagePath(image.image_url)}
+                                            alt={image.title}
+                                            class="w-full h-full object-cover rounded"
+                                        /> -->
+                                        <AuthImage 
+                                            src={parseImagePath(image.image_url)} 
+                                            alt="Profile picture" 
+                                            className="profile-image"
+                                        />
+
+                                    </button>                                    
                                     <div class="flex-1 min-w-0">
                                         <h3 class="font-medium text-gray-900 truncate">{image.title}</h3>
                                         {#if image.description}

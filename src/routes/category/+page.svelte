@@ -3,6 +3,7 @@
     import { setCurrentPage } from '../../stores/ui.js';
     import { goto } from '$app/navigation';
     import { authStore } from '../../stores/auth.js';
+    import { notificationStore } from '../../stores/notifications.js';
     import { createEventDispatcher } from 'svelte';
 
     let user = "";
@@ -42,6 +43,14 @@
 
     $: totalPages = Math.ceil(totalItems / itemsPerPage);
 
+    const logout = async () => {
+        // Clear authentication data
+        localStorage.removeItem('auth');
+        localStorage.removeItem('authToken');
+        
+        // Invalidate all data and redirect
+        await goto('/login', { replaceState: true });
+    };    
 
     // Load categories function
     const loadCategories = async () => {
@@ -49,14 +58,20 @@
         try {
             // Replace with your actual API call
             const response = await fetch(`/api/categories?page=${currentPage}&limit=${itemsPerPage}`, config);
+            if (response.status === 401) {
+                logout();
+                return;
+            }
+            
             const data = await response.json();
             
             categories = data || [];
             totalItems = data.total || categories.length;
         } catch (error) {
-            console.error('Failed to load categories:', error);
-            // Show error toast/notification
-            showErrorNotification('Gagal memuat kategori');
+            if (error.status === 401 || error.message.includes('401')) {
+                logout();
+                return;
+            }
         } finally {
             isLoading = false;
         }
