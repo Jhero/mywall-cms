@@ -433,11 +433,6 @@
                                             disabled={isSelectMode}
                                             aria-label="View {image.title}"
                                         >
-                                            <!-- <img
-                                                src={parseImagePath(image.image_url)}
-                                                alt={image.title}
-                                                class="w-full h-full object-cover"
-                                            /> -->
                                             <AuthImage 
                                                 src={parseImagePath(image.image_url)} 
                                                 alt="Profile picture" 
@@ -521,11 +516,6 @@
                                         disabled={isSelectMode}
                                         aria-label="View {image.title}"
                                     >
-                                        <!-- <img
-                                            src={parseImagePath(image.image_url)}
-                                            alt={image.title}
-                                            class="w-full h-full object-cover rounded"
-                                        /> -->
                                         <AuthImage 
                                             src={parseImagePath(image.image_url)} 
                                             alt="Profile picture" 
