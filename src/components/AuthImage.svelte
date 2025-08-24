@@ -10,45 +10,59 @@
     let imageSrc = '/placeholder.jpg';
     let loading = true;
     let error = false;
+    let user = null;
 
-    let user = "";
-
-    authStore.subscribe(auth => {
-        user = auth.user;
+    // Subscribe to auth store
+    const unsubscribe = authStore.subscribe(auth => {
+        user = auth?.user || null;
     });
 
-    // Set the current page when component mounts
-    // onMount(() => {
-    //     setCurrentPage('gallery');
-    // });
+    // Clean up subscription on component destroy
+    import { onDestroy } from 'svelte';
+    onDestroy(() => {
+        if (unsubscribe) unsubscribe();
+    });
     
     const dispatch = createEventDispatcher();
-    const token = user.token;            
-    const defaultHeaders = {}
-    
-    if (token) {
-        defaultHeaders.Authorization = `Bearer ${token}`;
-    }
-    
-    const config = {
-        headers: {
-            ...defaultHeaders,
-        },
-    };
-
     
     onMount(async () => {
         if (src) {
             try {
-                console.info("test-1",src);
-                console.info("test-2",JSON.stringify(config));
+                // Get token from user after subscription has been established
+                const token = user?.token;
+                const defaultHeaders = {};
+                
+                if (token) {
+                    defaultHeaders.Authorization = `Bearer ${token}`;
+                }
+                
+                const config = {
+                    headers: {
+                        ...defaultHeaders,
+                    },
+                };
+
                 const url = `/api/images${src}`;
-                const blob = await fetch(url,config);
-                imageSrc = URL.createObjectURL(blob);
-                console.info("test-3",JSON.stringify(imageSrc));
+                const response = await fetch(url, config);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                // Check if the response is an image
+                const contentType = response.headers.get('content-type');
+                if (contentType && contentType.startsWith('image/')) {
+                    // Create blob URL for image data
+                    const blob = await response.blob();
+                    imageSrc = URL.createObjectURL(blob);
+                } else {
+                    // If it's not an image, assume it's a URL
+                    const imageUrl = await response.text();
+                    imageSrc = imageUrl;
+                }
+                
                 loading = false;
             } catch (err) {
-                console.info("test-4",error.message);
                 error = true;
                 loading = false;
             }
@@ -56,6 +70,12 @@
             loading = false;
         }
     });
+
+    // Handle image load error
+    function handleImageError() {
+        error = true;
+        imageSrc = '/placeholder.jpg';
+    }
 </script>
 
 {#if loading}
@@ -67,14 +87,14 @@
         src="/placeholder.jpg" 
         {alt} 
         class={className}
-        on:error={() => error = true}
+        on:error={handleImageError}
     />
 {:else}
     <img 
         src={imageSrc} 
         {alt} 
         class={className}
-        on:error={() => error = true}
+        on:error={handleImageError}
     />
 {/if}
 
@@ -86,5 +106,11 @@
         background-color: #f0f0f0;
         color: #666;
         min-height: 100px;
+        border-radius: 4px;
+    }
+    
+    img {
+        max-width: 100%;
+        height: auto;
     }
 </style>

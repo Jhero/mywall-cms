@@ -60,10 +60,8 @@
 
 
     function parseImagePath(path) {
-        console.info("test-a-1",path);
         if (!path) return '/placeholder.jpg';
         const result = path.replace(/^uploads\\/, '/').replace(/\\/g, '/');
-        console.info("test-a-2",result);
         return result;
     }
 
