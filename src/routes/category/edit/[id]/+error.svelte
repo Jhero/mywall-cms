@@ -1,4 +1,4 @@
-<!-- src/routes/category/edit/[id]/+error.svelte -->
+<!-- src/routes/gallery/edit/[id]/+error.svelte -->
 <script>
     import { page } from '$app/stores';
     import { goto } from '$app/navigation';
@@ -9,7 +9,7 @@
     $: message = error?.message || 'Terjadi kesalahan';
     
     const goBack = () => {
-        goto('/category');
+        goto('/galleries');
     };
 </script>
 
