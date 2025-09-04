@@ -125,7 +125,7 @@
     const handleEdit = async (image) => {
         try {
             image.isEditing = true;
-            await goto(`/galleries/edit/${image.id}`);
+            await goto(`/galery/edit/${image.ID}`);
         } catch (error) {
             console.error('Navigation error:', error);
             showErrorNotification('Gagal membuka halaman edit');
@@ -137,7 +137,7 @@
     // Handle view image detail
     const handleView = async (image) => {
         try {
-            await goto(`/galleries/view/${image.id}`);
+            await goto(`/galery/view/${image.id}`);
         } catch (error) {
             console.error('Navigation error:', error);
             showErrorNotification('Gagal membuka detail gambar');

@@ -1,4 +1,4 @@
-// src/routes/gallery/edit/[id]/+page.js
+// src/routes/category/edit/[id]/+page.js
 import { error } from '@sveltejs/kit';
 import { get } from 'svelte/store';
 import { authStore } from '../../../../stores/auth.js';
@@ -9,7 +9,7 @@ export async function load({ params, fetch }) {
     
     // Validate ID
     if (!id || isNaN(parseInt(id))) {
-        throw error(400, 'Invalid gallery ID');
+        throw error(400, 'Invalid category ID');
     }
     
     // Get current auth state
@@ -30,27 +30,27 @@ export async function load({ params, fetch }) {
     };
     
     try {
-        // Fetch gallery data
-        const response = await fetch(`/api/galleries/${id}`, config);
+        // Fetch category data
+        const response = await fetch(`/api/categories/${id}`, config);
         
         if (!response.ok) {
             if (response.status === 404) {
-                throw error(404, 'Gallery not found');
+                throw error(404, 'Category not found');
             }
             if (response.status === 401) {
                 throw error(401, 'Unauthorized');
             }
-            throw error(response.status, 'Failed to load gallery');
+            throw error(response.status, 'Failed to load category');
         }
         
-        const gallery = await response.json();
+        const category = await response.json();
         
         return {
-            gallery,
-            galleryId: parseInt(id)
+            category,
+            categoryId: parseInt(id)
         };
     } catch (err) {
-        console.error('Error loading gallery:', err);
+        console.error('Error loading category:', err);
         
         // If it's already a SvelteKit error, re-throw it
         if (err.status) {
@@ -58,6 +58,6 @@ export async function load({ params, fetch }) {
         }
         
         // Otherwise, throw a generic server error
-        throw error(500, 'Failed to load gallery data');
+        throw error(500, 'Failed to load category data');
     }
 }
