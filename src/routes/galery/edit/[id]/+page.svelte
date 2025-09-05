@@ -37,7 +37,7 @@
     try {
       if (isOnlineMode) {
         // Update via API
-        const updatedData = await updateGalleryItem(fetch, editingId, {
+        const updatedData = await updateGalleryItem(editingId, {
           title: editingTitle.trim(),
           description: editingCaption.trim(),
           category_id: selectedImage?.categoryId || 1

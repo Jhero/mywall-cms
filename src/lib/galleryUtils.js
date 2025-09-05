@@ -51,20 +51,22 @@ export async function createGalleryItem(fetch, data) {
 }
   
   // Fungsi untuk UPDATE data di API
-export async function updateGalleryItem(fetch, id, data) {
+export async function updateGalleryItem(id, data) {
     try {
+      const config = createConfig();
+      if (config.headers) {
+          delete config.headers['Content-Type'];
+      }
       const formData = new FormData();
       formData.append('title', data.title);
       formData.append('description', data.description);
-      if (data.image) {
-        formData.append('image', data.image);
-      }
-      if (data.category_id) {
-        formData.append('category_id', data.category_id);
-      }
-  
+      formData.append('category_id', data.category_id);
+      // if (data.image) {
+      //   formData.append('image', data.image);
+      // }  
       const response = await fetch(`/api/galleries/${id}`, {
         method: 'PUT', // atau 'PATCH' tergantung API
+        ...config,
         body: formData
       });
   
