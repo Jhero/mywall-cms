@@ -8,9 +8,9 @@ const createConfig = () => {
   const auth = get(authStore);
   const token = auth?.user?.token;
   
-  const headers = {
-      'Content-Type': 'application/json',
-  };
+  const headers = {}
+  //     'Content-Type': 'application/json',
+  // };
 
   if (token) {
       headers.Authorization = `Bearer ${token}`;
@@ -20,7 +20,7 @@ const createConfig = () => {
 };
 
 // Fungsi untuk POST data baru ke API
-export async function createGalleryItem(fetch, data) {
+export async function createGalleryItem(data) {
     try {
       const config = createConfig();
       const formData = new FormData();
@@ -54,9 +54,6 @@ export async function createGalleryItem(fetch, data) {
 export async function updateGalleryItem(id, data) {
     try {
       const config = createConfig();
-      if (config.headers) {
-          delete config.headers['Content-Type'];
-      }
       const formData = new FormData();
       formData.append('title', data.title);
       formData.append('description', data.description);
@@ -82,16 +79,17 @@ export async function updateGalleryItem(id, data) {
 }
   
   // Fungsi untuk DELETE data dari API
-export async function deleteGalleryItem(fetch, id) {
+export async function deleteGalleryItem(id) {
     try {
+      const config = createConfig();
       const response = await fetch(`/api/galleries/${id}`, {
-        method: 'DELETE'
+        method: 'DELETE',
+        ...config
       });
   
       if (!response.ok) {
         throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-      }
-  
+      }  
       return true;
     } catch (err) {
       console.error('Failed to delete gallery item:', err);

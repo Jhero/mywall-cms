@@ -92,7 +92,7 @@
     try {
       if (isOnlineMode) {
         // Delete via API
-        await deleteGalleryItem(fetch, id);
+        await deleteGalleryItem(id);
       }
       
       // Update local data
@@ -121,7 +121,7 @@
         if (isOnlineMode) {
           // Upload via API
           try {
-            const apiResponse = await createGalleryItem(fetch, {
+            const apiResponse = await createGalleryItem({
               title: fileName,
               description: `Uploaded image: ${fileName}`,
               image: file,
