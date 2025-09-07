@@ -19,7 +19,7 @@ const createConfig = () => {
 };
 
 // Save category function
-export const saveCategory = async (categoryId, categoryData, fetch) => {
+export const saveCategory = async (categoryId, categoryData) => {
     try {
         const config = createConfig();
         const isUpdate = categoryId && categoryId !== null && categoryId !== undefined && categoryId !== '';
@@ -56,6 +56,47 @@ export const saveCategory = async (categoryId, categoryData, fetch) => {
     }
 };
 
+export const deleteCategory = async (id) => {
+    try {
+        const config = createConfig();
+        const method = 'DELETE';
+        const url =  `/api/categories/${id}`;
+        
+        const response = await fetch(url, {
+            method:method,
+            ...config
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw {
+                status: false,
+                errors: errorData.error,
+                message: errorData.message || 'Failed to update category'
+            };
+        }
+        else {
+            const result = await response.json();;
+            const dataresponse = {
+                status: true,
+                message: result.message,
+                errors: {}
+            }
+            return dataresponse;
+        }
+    } catch (error) {
+        // Handle network or other errors
+        if (error.status && error.errors) {
+            throw error; // Re-throw API errors
+        }
+        
+        throw {
+            status: false,
+            errors: {},
+            message: 'Network error occurred. Please try again.'
+        };        
+    }
+};
 // Bisa ditambahkan fungsi lain seperti:
 // - createCategory (untuk halaman create)
 // - deleteCategory (untuk action delete)

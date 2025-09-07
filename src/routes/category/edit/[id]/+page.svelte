@@ -77,7 +77,7 @@
             await saveCategory(categoryId, {
                 name: category.name.trim(),
                 isActive: category.isActive
-            }, fetch); // Pass fetch function
+            }); // Pass fetch function
 
             showSuccessMessage = true;
             setTimeout(() => {

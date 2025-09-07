@@ -5,6 +5,9 @@
     import { authStore } from '../../stores/auth.js';
     import { notificationStore } from '../../stores/notifications.js';
     import { createEventDispatcher } from 'svelte';
+    import { confirmDelete,showSuccess } from '../../stores/modal.js';
+    import Modal from '../../components/ui/Modal.svelte'; // Add Modal component import
+    import { deleteCategory } from '../../lib/categoryUtils.js'; // Import dari lib
 
     let user = "";
 
@@ -113,29 +116,30 @@
     // Handle delete category
     const handleDelete = async (category) => {
         // Show confirmation dialog
-        const confirmed = await showConfirmDialog(
-            'Hapus Kategori',
-            `Apakah Anda yakin ingin menghapus kategori "${category.name}"?`,
-            'Hapus',
-            'Batal'
-        );
+        const confirmed = await confirmDelete({
+            title: 'Delete Category?',
+            message: 'Are you sure you want to delete this category? This action cannot be undone.',
+            confirmText: 'Yes, delete it',
+            cancelText: 'Keep it'
+        });
         
         if (confirmed) {
             try {
                 isLoading = true;
                 
                 // Replace with your actual API call
-                const response = await fetch(`/api/categories/${category.id}`, {
-                    method: 'DELETE',
-                });
+                const id = category.ID;
+                const response = await deleteCategory(id);
                 
-                if (response.ok) {
+                if (response.status) {
                     // Remove from local array
-                    categories = categories.filter(cat => cat.id !== category.id);
+                    categories = categories.filter(cat => cat.ID !== id);
                     totalItems -= 1;
                     
                     // Show success notification
-                    showSuccessNotification('Kategori berhasil dihapus');
+                    await showSuccess({
+                        message: 'Data deleted successfully!'
+                    });                    
                     
                     // Reload if current page becomes empty
                     if (categories.length === 0 && currentPage > 1) {
@@ -143,11 +147,14 @@
                         await loadCategories();
                     }
                 } else {
-                    throw new Error('Failed to delete category');
+                    throw new Error(response.message);
                 }
             } catch (error) {
                 console.error('Failed to delete category:', error);
-                showErrorNotification('Gagal menghapus kategori');
+                await showError({
+                    title: 'Delete Failed',
+                    message: error.message
+                });
             } finally {
                 isLoading = false;
             }
@@ -176,22 +183,6 @@
         console.error('Error:', message);
         // Example with a toast library:
         // toast.error(message);
-    };
-    
-    const showConfirmDialog = async (title, message, confirmText = 'OK', cancelText = 'Cancel') => {
-        // Implement your confirmation dialog
-        // For now, using browser confirm (replace with custom modal)
-        return confirm(`${title}\n\n${message}`);
-        
-        // Example with a custom modal:
-        // return new Promise((resolve) => {
-        //     const modal = new ConfirmModal({
-        //         target: document.body,
-        //         props: { title, message, confirmText, cancelText },
-        //     });
-        //     modal.$on('confirm', () => resolve(true));
-        //     modal.$on('cancel', () => resolve(false));
-        // });
     };
 
     onMount(() => {
@@ -348,3 +339,4 @@
         </div>
     {/if}
 </div>
+<Modal />

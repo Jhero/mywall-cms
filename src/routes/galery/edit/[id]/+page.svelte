@@ -87,9 +87,7 @@
     errorMessage = '';
   }
   
-  async function deleteImage(id) {
-    console.log('Delete image called for ID:', id); // Debug log
-    
+  async function deleteImage(id) {    
     try {
       const confirmed = await confirmDelete({
         title: 'Delete Image?',
@@ -97,9 +95,6 @@
         confirmText: 'Yes, delete it',
         cancelText: 'Keep it'
       });
-
-      console.log('Confirmation result:', confirmed); // Debug log
-
       if (confirmed) {
         console.log('User confirmed deletion, proceeding...'); // Debug log
         isLoading = true;
