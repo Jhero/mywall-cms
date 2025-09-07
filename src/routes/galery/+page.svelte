@@ -443,10 +443,10 @@
 
                                     <!-- Overlay Actions -->
                                     {#if !isSelectMode}
-                                        <div class="absolute inset-0 bg-black bg-opacity-50 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center justify-center space-x-2">
+                                        <div class="absolute inset-0 bg-opacity-50 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center justify-center space-x-2">
                                             <button
                                                 on:click={() => handleView(image)}
-                                                class="bg-white bg-opacity-20 hover:bg-opacity-30 text-white p-2 rounded-full transition-all"
+                                                class="bg-white bg-transparent hover:bg-opacity-30 text-white p-2 rounded-full transition-all"
                                                 aria-label="Lihat gambar {image.title || 'ini'}"
                                                 title="Lihat"
                                             >
@@ -457,7 +457,7 @@
                                             </button>
                                             <button
                                                 on:click={() => handleEdit(image)}
-                                                class="bg-white bg-opacity-20 hover:bg-opacity-30 text-white p-2 rounded-full transition-all"
+                                                class="bg-white bg-transparent hover:bg-opacity-30 text-white p-2 rounded-full transition-all"
                                                 aria-label="Edit gambar {image.title || 'ini'}"
                                                 title="Edit"
                                             >
@@ -467,7 +467,7 @@
                                             </button>
                                             <button
                                                 on:click={() => handleDelete(image)}
-                                                class="bg-white bg-opacity-20 hover:bg-opacity-30 text-white p-2 rounded-full transition-all"
+                                                class="bg-white bg-transparent hover:bg-opacity-30 text-white p-2 rounded-full transition-all"
                                                 aria-label="Hapus gambar {image.title || 'ini'}"
                                                 title="Hapus"
                                             >

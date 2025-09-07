@@ -65,8 +65,8 @@
             
             const data = await response.json();
             
-            categories = data || [];
-            totalItems = data.total || categories.length;
+            categories = data.data.data || [];
+            totalItems = data.data.pagination.total_items || categories.length;
         } catch (error) {
             if (error.status === 401 || error.message.includes('401')) {
                 logout();

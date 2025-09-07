@@ -1,7 +1,9 @@
 <script>
   import { onMount } from 'svelte';
   import { createGalleryItem, updateGalleryItem, deleteGalleryItem, generateImageId, validateImageFile } from '../../../../lib/galleryUtils.js';
-  
+  import { confirmDelete } from '../../../../stores/modal.js';
+  import Modal from '../../../../components/ui/Modal.svelte'; // Add Modal component import
+
   /** @type {import('./$types').PageData} */
   export let data;
   
@@ -86,21 +88,45 @@
   }
   
   async function deleteImage(id) {
-    if (!confirm('Are you sure you want to delete this image?')) return;
+    console.log('Delete image called for ID:', id); // Debug log
     
-    isLoading = true;
     try {
-      if (isOnlineMode) {
-        // Delete via API
-        await deleteGalleryItem(id);
+      const confirmed = await confirmDelete({
+        title: 'Delete Image?',
+        message: 'Are you sure you want to delete this image? This action cannot be undone.',
+        confirmText: 'Yes, delete it',
+        cancelText: 'Keep it'
+      });
+
+      console.log('Confirmation result:', confirmed); // Debug log
+
+      if (confirmed) {
+        console.log('User confirmed deletion, proceeding...'); // Debug log
+        isLoading = true;
+        
+        try {
+          if (isOnlineMode) {
+            await deleteGalleryItem(id);
+            console.log('API deletion successful'); // Debug log
+          }
+          
+          // Remove from local array
+          const originalLength = images.length;
+          images = images.filter(img => img.id !== id);
+          console.log(`Images array updated: ${originalLength} -> ${images.length}`); // Debug log
+          
+        } catch (err) {
+          console.error('Delete operation failed:', err); // Debug log
+          errorMessage = `Failed to delete: ${err.message}`;
+        } finally {
+          isLoading = false;
+        }
+      } else {
+        console.log('User cancelled deletion'); // Debug log
       }
-      
-      // Update local data
-      images = images.filter(img => img.id !== id);
     } catch (err) {
-      errorMessage = `Failed to delete: ${err.message}`;
-    } finally {
-      isLoading = false;
+      console.error('confirmDelete function error:', err); // Debug log
+      errorMessage = `Failed to show confirmation dialog: ${err.message}`;
     }
   }
   
@@ -205,14 +231,21 @@
   }
   
   onMount(() => {
+    console.log('Gallery page mounted'); // Debug log
+    
     // Auto-clear error messages after 5 seconds
     let errorTimeout;
-    $: if (errorMessage) {
-      clearTimeout(errorTimeout);
-      errorTimeout = setTimeout(() => {
-        errorMessage = '';
-      }, 5000);
-    }
+    const clearErrorTimeout = () => {
+      if (errorMessage) {
+        clearTimeout(errorTimeout);
+        errorTimeout = setTimeout(() => {
+          errorMessage = '';
+        }, 5000);
+      }
+    };
+    
+    // Watch for errorMessage changes
+    $: clearErrorTimeout();
     
     return () => {
       clearTimeout(errorTimeout);
@@ -397,7 +430,7 @@
   {/if}
 </div>
 
-<!-- Modal -->
+<!-- Modal for image preview -->
 {#if showModal && selectedImage}
   <div class="modal-overlay" on:click={closeModal}>
     <div class="modal-content" on:click|stopPropagation>
@@ -426,6 +459,9 @@
     </div>
   </div>
 {/if}
+
+<!-- Include the confirmation modal component -->
+<Modal />
 
 <style>
   :global(body) {
@@ -474,41 +510,7 @@
     padding-bottom: 20px;
     border-bottom: 2px solid #e1e5e9;
   }
-  
-  .header-info h1 {
-    margin: 0 0 8px 0;
-    color: #2c3e50;
-    font-size: 2rem;
-    font-weight: 600;
-  }
-  
-  .status-info {
-    display: flex;
-    align-items: center;
-    gap: 16px;
-    flex-wrap: wrap;
-  }
-  
-  .image-count {
-    margin: 0;
-    color: #7f8c8d;
-    font-size: 14px;
-  }
-  
-  .api-status {
-    padding: 4px 12px;
-    border-radius: 12px;
-    font-size: 12px;
-    font-weight: 500;
-    background: #d5f4e6;
-    color: #27ae60;
-  }
-  
-  .api-status.offline {
-    background: #ffeaea;
-    color: #e74c3c;
-  }
-  
+    
   .upload-btn {
     display: flex;
     align-items: center;
@@ -895,16 +897,7 @@
       grid-template-columns: 1fr;
       gap: 16px;
     }
-    
-    .header-info h1 {
-      font-size: 1.5rem;
-      text-align: center;
-    }
-    
-    .image-count {
-      text-align: center;
-    }
-    
+        
     .modal-content {
       max-width: 95vw;
       max-height: 95vh;
