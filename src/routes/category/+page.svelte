@@ -82,7 +82,7 @@
     
     // Handle add new category
     
-    const handleAdd = () => {
+    const handleAdd = async () => {
         try {
             // Optional: Set loading state for add button
             isLoading = true;
@@ -91,7 +91,10 @@
             goto('/category/add');
         } catch (error) {
             console.error('Navigation error:', error);
-            showErrorNotification('Gagal membuka halaman tambah kategori');
+            await showError({
+                title: 'Cateogory Failed',
+                message: 'Failed open category page.'
+            });            
         } finally {
             // Reset loading state
             isLoading = false;
@@ -106,8 +109,10 @@
             // Navigate to edit page
             await goto(`/category/edit/${category.ID}`);
         } catch (error) {
-            console.error('Navigation error:', error);
-            showErrorNotification('Gagal membuka halaman edit');
+            await showError({
+                title: 'Cateogory Failed',
+                message: 'Failed open category page edit.'
+            });            
         } finally {
             category.isEditing = false;
         }
@@ -169,14 +174,6 @@
         }
     };
 
-
-    // Utility functions for notifications (implement according to your notification system)
-    const showSuccessNotification = (message) => {
-        // Implement your success notification
-        console.log('Success:', message);
-        // Example with a toast library:
-        // toast.success(message);
-    };
     
     const showErrorNotification = (message) => {
         // Implement your error notification
