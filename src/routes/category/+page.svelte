@@ -137,7 +137,6 @@
         try {
             const queryParams = buildQueryParams();
             const response = await fetch(`/api/categories?${queryParams}`, config);
-            
             if (response.status === 401) {
                 logout();
                 return;
